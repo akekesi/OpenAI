@@ -5,7 +5,7 @@ https://www.youtube.com/watch?v=R3mo_OJO5pM
 import openai
 
 
-class ChatGPT:
+class ChatGPT35Turbo:
 	def __init__(self, api_key: str, role: str):
 		openai.api_key = api_key
 		self.dialog = [
@@ -15,7 +15,7 @@ class ChatGPT:
 			}
 		]
 
-	def fragen(self, question):
+	def question(self, question):
 		self.dialog.append(
 			{
 				"role": "user",
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 	# create ChatGPT
 	with open(path_api_key, "r") as api_key_open:
 		api_key = api_key_open.read()
-	chatgpt = ChatGPT(
+	chatgpt = ChatGPT35Turbo(
 		api_key=api_key,
 		role=role
 	)
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 		question = input("\n> ")
 		if question == "EXIT":
 			break
-		answer = chatgpt.fragen(question=question)
+		answer = chatgpt.question(question=question)
 		print(answer)
 
 		with open(path_save_text, "a") as f:
