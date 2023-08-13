@@ -38,7 +38,7 @@ class ChatGPT:
 
 if __name__ == "__main__":
 	# arguments to run chat
-	path_api_key = "api.key"						# <-- api.key file
+	path_api_key = "api.key"						# <-- api.key file, paste your api key there
 	path_save_text = "chat_gpt_pirate_BJ.txt"		# <-- txt file to save chat
 	role = "Be a pirate who likes Ben & Jerry's."	# <-- role of ChatGPT
 
