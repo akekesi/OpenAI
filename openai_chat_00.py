@@ -15,7 +15,7 @@ class ChatGPT35Turbo:
 			}
 		]
 
-	def question(self, question):
+	def question(self, question: str):
 		self.dialog.append(
 			{
 				"role": "user",
@@ -37,21 +37,21 @@ class ChatGPT35Turbo:
 
 
 if __name__ == "__main__":
-	# arguments to run chat
+	# arguments
 	path_api_key = "api.key"						# <-- api.key file, paste your api key there
-	path_save_text = "chat_gpt_pirate_BJ.txt"		# <-- txt file to save chat
+	path_save_chat = "chat_gpt_pirate_BJ.txt"		# <-- txt file to save chat
 	role = "Be a pirate who likes Ben & Jerry's."	# <-- role of ChatGPT
-
-	# create ChatGPT
 	with open(path_api_key, "r") as api_key_open:
 		api_key = api_key_open.read()
+
+	# create chat object
 	chatgpt = ChatGPT35Turbo(
 		api_key=api_key,
 		role=role
 	)
 
-	# run chat, terminate it with "EXIT"
-	with open(path_save_text, "a") as f:
+	# run and save chat, terminate it with "EXIT"
+	with open(path_save_chat, "a") as f:
 		f.write(f"role: {role}\n")
 	while True:
 		question = input("\n> ")
@@ -60,6 +60,6 @@ if __name__ == "__main__":
 		answer = chatgpt.question(question=question)
 		print(answer)
 
-		with open(path_save_text, "a") as f:
+		with open(path_save_chat, "a") as f:
 			f.write(f"> {question}\n")
 			f.write(f"> {answer}\n")
