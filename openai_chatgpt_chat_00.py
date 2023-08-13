@@ -39,7 +39,7 @@ class ChatGPT:
 if __name__ == "__main__":
 	# arguments to run chat
 	path_api_key = "api.key"						# <-- api.key file, paste your api key there
-	path_save_text = "chat_gpt_pirate_BJ.txt"		# <-- txt file to save chat
+	path_save_text = "chat_gpt_pirate_BJ_0.txt"		# <-- txt file to save chat
 	role = "Be a pirate who likes Ben & Jerry's."	# <-- role of ChatGPT
 
 	# create ChatGPT
@@ -51,6 +51,8 @@ if __name__ == "__main__":
 	)
 
 	# run chat, terminate it with "EXIT"
+	with open(path_save_text, "a") as f:
+		f.write(f"role: {role}\n")
 	while True:
 		question = input("\n> ")
 		if question == "EXIT":
