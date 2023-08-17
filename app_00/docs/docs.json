@@ -1,0 +1,44 @@
+{
+	"pirate_b&j": {
+		"name": "pirate_b&j",
+		"chat": "openai_pirate_b&j.txt",
+		"logo": "openai_pirate_b&j.png",
+		"type": 0
+	},
+	"dagobert_ai": {
+		"name": "dagobert_ai",
+		"chat": "openai_dagobert_ai.txt",
+		"logo": "openai_dagobert_ai.png",
+		"type": 1
+	},
+	"bart_movie": {
+		"name": "bart_movie",
+		"chat": "openai_bart_movie.txt",
+		"logo": "openai_bart_movie.png",
+		"type": 2
+	},
+	"bojack_bar": {
+		"name": "bojack_bar",
+		"chat": "openai_bojack_bar.txt",
+		"logo": "openai_bojack_bar.png",
+		"type": 2
+	},
+	"jesse_lab": {
+		"name": "jesse_lab",
+		"chat": "openai_jesse_lab.txt",
+		"logo": "openai_jesse_lab.png",
+		"type": 1
+	},
+	"livia_soprano": {
+		"name": "livia_soprano",
+		"chat": "openai_livia_soprano.txt",
+		"logo": "openai_livia_soprano.png",
+		"type": 0
+	},
+	"feynman_drums": {
+		"name": "feynman_drums",
+		"chat": "openai_feynman_drums.txt",
+		"logo": "openai_feynman_drums.png",
+		"type": 0
+	}
+}
