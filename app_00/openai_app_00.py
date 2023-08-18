@@ -180,8 +180,8 @@ class App(customtkinter.CTk):
             name_doc = doc["name"]
             type_num = doc["type"]
         else:
-            name_doc = self.input_dialog(text="Name of the text file to save the chat as:",
-                                        title="Save as")
+            name_doc = self.input_dialog(text="Enter the name of the doc:",
+                                        title="Name of Doc")
             if not name_doc:
                 return
             self.save_chat(name_doc)

@@ -40,5 +40,17 @@
 		"chat": "openai_feynman_drums.txt",
 		"logo": "openai_feynman_drums.png",
 		"type": 0
+	},
+	"mia_wallace_shake": {
+		"name": "mia_wallace_shake",
+		"chat": "openai_mia_wallace_shake.txt",
+		"logo": "openai_mia_wallace_shake.png",
+		"type": 1
+	},
+	"stewie_fashion": {
+		"name": "stewie_fashion",
+		"chat": "openai_stewie_fashion.txt",
+		"logo": "openai_stewie_fashion.png",
+		"type": 2
 	}
 }
