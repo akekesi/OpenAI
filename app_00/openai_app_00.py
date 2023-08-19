@@ -5,6 +5,7 @@ import requests
 import customtkinter
 from tkinter import *
 from PIL import Image
+from app_open import AppOpenImage
 from openai_class_00 import ChatGPT, DALLE
 
 
@@ -194,7 +195,7 @@ class App(customtkinter.CTk):
                                            size=self.size_image_logo)
         n = len(self.widgets_docs[0])
         self.widgets_docs[0].append(
-            customtkinter.CTkLabel(self.frame_docs_scrollable, image=image_doc, text="", justify="center")
+            customtkinter.CTkLabel(self.frame_docs_scrollable, image=image_doc, text="", justify="center", cursor="hand2")
         )
         self.widgets_docs[1].append(
             customtkinter.CTkEntry(self.frame_docs_scrollable)
@@ -206,6 +207,7 @@ class App(customtkinter.CTk):
             customtkinter.CTkButton(self.frame_docs_scrollable, text="Delete", width=75, border_width=2, border_color="#565B5E", command=lambda n=n: self.delete_doc(n))
         )
         self.widgets_docs[0][n].grid(row=n, column=0, padx=(0, 0), pady=(self.pady_grid, 0), sticky="ew")
+        self.widgets_docs[0][n].bind("<Button-1>", lambda event, path_image=os.path.join(self.path_docs, doc["logo"]), name=doc["name"]: self.open_image(path_image, name))
         self.widgets_docs[1][n].grid(row=n, column=1, padx=(self.padx_grid, 0), pady=(self.pady_grid, 0), sticky="ew")
         self.widgets_docs[1][n].configure(state="normal")
         self.widgets_docs[1][n].delete(0, "end")
@@ -247,6 +249,13 @@ class App(customtkinter.CTk):
             docs = json.load(f)
         for doc in docs.values():
             self.add_doc(doc)
+
+    def open_image(self, path_image, name):
+        image_open = Image.open(path_image)
+        image = customtkinter.CTkImage(dark_image=image_open,
+                                       size=self.size_image_original)
+        AppOpenImage(image=image,
+                     name=name)
 
     def resize(self, event) -> None:
         if self.winfo_width() < self.size_window[0]:
