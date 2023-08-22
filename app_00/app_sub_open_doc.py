@@ -18,6 +18,7 @@ class AppSubOpenDoc(customtkinter.CTkToplevel):
 
     padx_grid = 10
     pady_grid = 10
+    padx_grid_scroll = 16
 
     def __init__(self, name, path_chat, path_logo):
         super().__init__()
@@ -58,7 +59,7 @@ class AppSubOpenDoc(customtkinter.CTkToplevel):
         self.tabview.tab(self.tab_names[1]).grid_rowconfigure(0, weight=1)
 
         self.textbox = customtkinter.CTkTextbox(self.tabview.tab(self.tab_names[1]), activate_scrollbars=False)
-        self.textbox.grid(row=0, column=0, sticky="nsew")
+        self.textbox.grid(row=0, column=0, padx=(self.padx_grid_scroll, 0), sticky="nsew")
 
         self.textbox_scrollbar = customtkinter.CTkScrollbar(self.tabview.tab(self.tab_names[1]), command=self.textbox.yview)
         self.textbox_scrollbar.grid(row=0, column=1, sticky="ns")
@@ -78,7 +79,7 @@ class AppSubOpenDoc(customtkinter.CTkToplevel):
 
 
 if __name__ == "__main__":
-    # arguments for AppOpenDoc()
+    # arguments for AppSubOpenDoc()
     path_git_docs = "docs"
     name = "bart_movie"
     name_txt = f"{name}.txt"
@@ -86,7 +87,7 @@ if __name__ == "__main__":
     path_chat = os.path.join(path_git_docs, name_txt)
     path_logo = os.path.join(path_git_docs, name_png)
 
-    # AppOpenDoc()
+    # AppSubOpenDoc()
     customtkinter.set_appearance_mode("dark")
     app = AppSubOpenDoc(name=name,
                      path_chat=path_chat,

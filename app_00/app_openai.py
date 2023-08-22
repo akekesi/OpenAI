@@ -10,7 +10,7 @@ from app_sub_open_doc import AppSubOpenDoc
 from class_openai import ChatGPT, DALLE
 
 
-class App(customtkinter.CTk):
+class AppOpenAI(customtkinter.CTk):
     chat_gpt = None
     first_message = True
 
@@ -23,7 +23,7 @@ class App(customtkinter.CTk):
     path_docs = os.path.join(path_git_docs, name_docs)
     with open(path_docs, 'r') as f:
         docs_data = json.load(f)
-        
+
     path_image_default = os.path.join(path_git_assets, name_image_default)
     image_generated_content = None
     image_generated_bytes = None
@@ -51,6 +51,7 @@ class App(customtkinter.CTk):
 
     padx_grid = 10
     pady_grid = 10
+    padx_grid_scroll = 16
 
     path_api_key = "api.key"    # api.key file, paste your api key there
     with open(path_api_key, "r") as api_key_open:
@@ -97,7 +98,7 @@ class App(customtkinter.CTk):
         self.entry_role.grid(row=0, column=0, sticky="nsew")
 
         self.textbox = customtkinter.CTkTextbox(self.frame_text, activate_scrollbars=False)
-        self.textbox.grid(row=0, column=0, sticky="nsew")
+        self.textbox.grid(row=0, column=0, padx=(self.padx_grid_scroll, 0), sticky="nsew")
 
         self.textbox_scrollbar = customtkinter.CTkScrollbar(self.frame_text, command=self.textbox.yview)
         self.textbox_scrollbar.grid(row=0, column=1, sticky="ns")
@@ -303,6 +304,7 @@ class App(customtkinter.CTk):
 
 
 if __name__ == "__main__":
+    # AppOpenAI()
     customtkinter.set_appearance_mode("dark")
-    app = App()
+    app = AppOpenAI()
     app.mainloop()
