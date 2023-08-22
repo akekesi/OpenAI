@@ -1,40 +1,53 @@
 import io
 import os
 import json
+import shutil
 import requests
 import customtkinter
 from tkinter import *
 from PIL import Image
-from app_open import AppOpenImage
+from app_open import AppOpenDoc
 from openai_class_00 import ChatGPT, DALLE
 
 
 class App(customtkinter.CTk):
     chat_gpt = None
     first_message = True
-    path_docs = "docs"
-    docs = "docs.json"
-    image_default = "image_default.png"
-    image_default_path = os.path.join(path_docs, image_default)
+    path_app_docs = "docs"
+    path_app_assets = "assets"
+
+    name_docs = "00_docs.json"
+    name_image_default = "image_default.png"
+
+    path_docs = os.path.join(path_app_docs, name_docs) # change to global, needed multiple times !!!
+    with open(path_docs, 'r') as f:
+        docs_data = json.load(f)
+        
+    image_default_path = os.path.join(path_app_assets, name_image_default)
     image_generated_content = None
     image_generated_bytes = None
+
     placeholder_role = "Enter the role of AI, e.g. Be a pirate who loves Ben & Jerry's!"
     placeholder_message = "Enter your message"
     placeholder_prompt = "Enter the prompt, e.g. Pirate with Ben & Jerry's in style of flat art"
+
     tab_names = ["chat",
                  "logo",
                  "docs"]
     widgets_docs = [[],     # image of doc: 	widget - Label
                     [],     # name of doc:	    widget - Entry
                     [],     # type of doc:	    widget - Combobox
-                    []]     # delete button:    widget - Button
+                    [],     # delete button:    widget - Button
+                    []]     # hash of doc
     types_docs = ["private",
                   "unlisted",
                   "public"]
     title_app = "OpenAI - Demo"
+
     size_image_original = (256, 256)
     size_image_logo = (25, 25)
     size_window = (450, 550)
+
     padx_grid = 10
     pady_grid = 10
 
@@ -116,10 +129,10 @@ class App(customtkinter.CTk):
         self.entry_prompt = customtkinter.CTkEntry(self.frame_prompt, placeholder_text=self.placeholder_prompt, justify="center")
         self.entry_prompt.grid(row=0, column=0, sticky="nsew")
 
-        self.image_default = customtkinter.CTkImage(dark_image=Image.open(self.image_default_path),
-                                                    size=self.size_image_original)
+        image = customtkinter.CTkImage(dark_image=Image.open(self.image_default_path),
+                                       size=self.size_image_original)
 
-        self.label_image = customtkinter.CTkLabel(self.frame_image, image=self.image_default, text="", justify="center")
+        self.label_image = customtkinter.CTkLabel(self.frame_image, image=image, text="", justify="center")
         self.label_image.grid(row=0, column=0, padx=self.padx_grid, pady=self.pady_grid)
 
         self.button_generate_image = customtkinter.CTkButton(self.frame_generate, text="Generate", border_width=2, border_color="#565B5E", command=self.generate_image)
@@ -145,7 +158,7 @@ class App(customtkinter.CTk):
         self.button_add_part = customtkinter.CTkButton(self.frame_add_doc, text="Add Doc", width=75, border_width=2, border_color="#565B5E", command=self.add_doc)
         self.button_add_part.grid(row=1, column=0, padx=(0, 2*self.padx_grid+6), pady=0, sticky="e")
 
-        # resize	
+        # resize
         self.bind("<Configure>", self.resize)
 
         # load docs
@@ -167,30 +180,45 @@ class App(customtkinter.CTk):
         prompt = self.entry_prompt.get()
         dall_e = DALLE(api_key=self.api_key)
         url = dall_e.create(prompt=prompt,
-                           n=1,
-                           size=f"{self.size_image_original[0]}x{self.size_image_original[1]}")
+                            n=1,
+                            size=f"{self.size_image_original[0]}x{self.size_image_original[1]}")
         self.image_generated_content = requests.get(url).content
         self.image_generated_bytes = io.BytesIO(self.image_generated_content)
         image_generated = customtkinter.CTkImage(dark_image=Image.open(self.image_generated_bytes),
-                                       size=self.size_image_original)
+                                                 size=self.size_image_original)
         self.label_image.configure(image=image_generated)
 
     def add_doc(self, doc={}):
         if doc:
-            image_to_open = os.path.join(self.path_docs, doc["logo"])
-            name_doc = doc["name"]
-            type_num = doc["type"]
+            image_to_open = os.path.join(self.path_app_docs, doc["logo"])
+            hash = doc["hash"]
+            name = doc["name"]
+            type = doc["type"]
         else:
-            name_doc = self.input_dialog(text="Enter the name of the doc:",
-                                        title="Name of Doc")
-            if not name_doc:
+            name = self.input_dialog(text="Enter the name of the doc:",
+                                     title="Name of Doc")
+            if not name:
                 return
-            self.save_chat(name_doc)
+            # update json, and data
+            self.save_chat(name)
             image_to_open = self.image_default_path
             if self.image_generated_bytes:
-                self.save_image(name_doc)
+                self.save_image(name)
                 image_to_open = self.image_generated_bytes
-            type_num = 0
+            else:
+                shutil.copyfile(self.image_default_path, os.path.join(self.path_app_docs, f"{name}.png"))
+            hash = str(len(self.docs_data) + 1)
+            type = 0
+            data = {hash: {"state": 1,
+                           "hash": hash,
+                           "name": name,
+                           "chat": f"{name}.txt",
+                           "logo": f"{name}.png",
+                           "type": 1}}
+            self.docs_data.update(data)
+            self.update_docs()
+
+            doc = data[hash]
         image_doc = customtkinter.CTkImage(dark_image=Image.open(image_to_open),
                                            size=self.size_image_logo)
         n = len(self.widgets_docs[0])
@@ -201,23 +229,28 @@ class App(customtkinter.CTk):
             customtkinter.CTkEntry(self.frame_docs_scrollable)
         )
         self.widgets_docs[2].append(
-            customtkinter.CTkComboBox(self.frame_docs_scrollable, values=self.types_docs, width=100, justify="c", state="readonly")
+            customtkinter.CTkComboBox(self.frame_docs_scrollable, values=self.types_docs, width=100, justify="c", state="readonly", command=lambda type=type, n=n: self.update_type(type, n))
         )
         self.widgets_docs[3].append(
             customtkinter.CTkButton(self.frame_docs_scrollable, text="Delete", width=75, border_width=2, border_color="#565B5E", command=lambda n=n: self.delete_doc(n))
         )
+        self.widgets_docs[-1].append(hash)
         self.widgets_docs[0][n].grid(row=n, column=0, padx=(0, 0), pady=(self.pady_grid, 0), sticky="ew")
-        self.widgets_docs[0][n].bind("<Button-1>", lambda event, path_image=os.path.join(self.path_docs, doc["logo"]), name=doc["name"]: self.open_image(path_image, name))
+        self.widgets_docs[0][n].bind("<Button-1>", lambda event, path_logo=os.path.join(self.path_app_docs, doc["logo"]), path_chat=os.path.join(self.path_app_docs, doc["chat"]), name=doc["name"]: self.open_doc(path_logo, path_chat, name))
         self.widgets_docs[1][n].grid(row=n, column=1, padx=(self.padx_grid, 0), pady=(self.pady_grid, 0), sticky="ew")
         self.widgets_docs[1][n].configure(state="normal")
         self.widgets_docs[1][n].delete(0, "end")
-        self.widgets_docs[1][n].insert(0, name_doc) 
+        self.widgets_docs[1][n].insert(0, name) 
         self.widgets_docs[1][n].configure(state="disabled")
         self.widgets_docs[2][n].grid(row=n, column=2, padx=(self.padx_grid, 0), pady=(self.pady_grid, 0), sticky="ew")
-        self.widgets_docs[2][n].set(self.types_docs[type_num])
+        self.widgets_docs[2][n].set(self.types_docs[type])
         self.widgets_docs[3][n].grid(row=n, column=3, padx=self.padx_grid, pady=(self.pady_grid, 0), sticky="ew")
 
     def delete_doc(self, n):
+        print(type(n), n)
+        hash = self.widgets_docs[-1][n]
+        self.docs_data[hash]["state"] = 0 
+        self.update_docs()
         if self.widgets_docs[0][n]:
             self.widgets_docs[0][n].destroy()
             self.widgets_docs[1][n].destroy()
@@ -233,29 +266,39 @@ class App(customtkinter.CTk):
         dialog = customtkinter.CTkInputDialog(text=text, title=title)
         return dialog.get_input()
 
-    def save_chat(self, name_doc):
-        path_txt = os.path.join(self.path_docs, f"{name_doc}.txt")
+    def save_chat(self, name):
+        path_txt = os.path.join(self.path_app_docs, f"{name}.txt")
         with open(path_txt, 'w') as f:
             f.write(self.textbox.get(0.0, "end"))
 
-    def save_image(self, name_doc):
-        path_png = os.path.join(self.path_docs, f"{name_doc}.png")
+    def save_image(self, name):
+        path_png = os.path.join(self.path_app_docs, f"{name}.png")
         with open(path_png, "wb") as f:
             f.write(self.image_generated_content)
 
     def load_docs(self):
-        path_docs = os.path.join(self.path_docs, self.docs)
-        with open(path_docs, 'r') as f:
-            docs = json.load(f)
-        for doc in docs.values():
-            self.add_doc(doc)
+        for doc in self.docs_data.values():
+            if doc["state"]:
+                self.add_doc(doc)
 
-    def open_image(self, path_image, name):
-        image_open = Image.open(path_image)
+    def update_docs(self):
+        with open(self.path_docs, "w") as f:
+            json.dump(self.docs_data, f, indent=4)
+
+    def update_type(self, type, n):
+        hash = self.widgets_docs[-1][n]
+        self.docs_data[hash]["type"] = self.types_docs.index(type) 
+        self.update_docs()
+
+    def open_doc(self, path_logo, path_chat, name):
+        image_open = Image.open(path_logo)
         image = customtkinter.CTkImage(dark_image=image_open,
                                        size=self.size_image_original)
-        AppOpenImage(image=image,
-                     name=name)
+        with open(path_chat, "r") as f:
+            text = f.read()
+        AppOpenDoc(image=image,
+                   text=text,
+                   name=name)
 
     def resize(self, event) -> None:
         if self.winfo_width() < self.size_window[0]:
