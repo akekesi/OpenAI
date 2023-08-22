@@ -70,5 +70,13 @@
         "chat": "stewie_fashion.txt",
         "logo": "stewie_fashion.png",
         "type": 2
+    },
+    "10": {
+        "state": 1,
+        "hash": "10",
+        "name": "savages",
+        "chat": "savages.txt",
+        "logo": "savages.png",
+        "type": 2
     }
 }

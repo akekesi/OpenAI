@@ -6,8 +6,8 @@ import requests
 import customtkinter
 from tkinter import *
 from PIL import Image
-from app_open import AppOpenDoc
-from openai_class_00 import ChatGPT, DALLE
+from app_sub_open_doc import AppSubOpenDoc
+from class_openai import ChatGPT, DALLE
 
 
 class App(customtkinter.CTk):
@@ -291,7 +291,7 @@ class App(customtkinter.CTk):
         self.update_docs()
 
     def open_doc(self, name, path_chat, path_logo):
-        AppOpenDoc(name=name,
+        AppSubOpenDoc(name=name,
                    path_chat=path_chat,
                    path_logo=path_logo)
 

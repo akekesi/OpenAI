@@ -4,7 +4,7 @@ from tkinter import *
 from PIL import Image
 
 
-class AppOpenDoc(customtkinter.CTkToplevel):
+class AppSubOpenDoc(customtkinter.CTkToplevel):
     path_git_assets = "assets"
     name_image_default = "image_default.png"
     path_image_default = os.path.join(path_git_assets, name_image_default)
@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
     # AppOpenDoc()
     customtkinter.set_appearance_mode("dark")
-    app = AppOpenDoc(name=name,
+    app = AppSubOpenDoc(name=name,
                      path_chat=path_chat,
                      path_logo=path_logo)
     app.mainloop()
