@@ -29,7 +29,7 @@
         "name": "bojack_bar",
         "chat": "bojack_bar.txt",
         "logo": "bojack_bar.png",
-        "type": 2
+        "type": 0
     },
     "5": {
         "state": 1,
@@ -45,7 +45,7 @@
         "name": "livia_soprano",
         "chat": "livia_soprano.txt",
         "logo": "livia_soprano.png",
-        "type": 0
+        "type": 2
     },
     "7": {
         "state": 1,
@@ -77,6 +77,6 @@
         "name": "savages",
         "chat": "savages.txt",
         "logo": "savages.png",
-        "type": 2
+        "type": 0
     }
 }
