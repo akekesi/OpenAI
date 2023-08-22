@@ -13,17 +13,18 @@ from openai_class_00 import ChatGPT, DALLE
 class App(customtkinter.CTk):
     chat_gpt = None
     first_message = True
-    path_app_docs = "docs"
-    path_app_assets = "assets"
+
+    path_git_docs = "docs"
+    path_git_assets = "assets"
 
     name_docs = "00_docs.json"
     name_image_default = "image_default.png"
 
-    path_docs = os.path.join(path_app_docs, name_docs) # change to global, needed multiple times !!!
+    path_docs = os.path.join(path_git_docs, name_docs)
     with open(path_docs, 'r') as f:
         docs_data = json.load(f)
         
-    image_default_path = os.path.join(path_app_assets, name_image_default)
+    path_image_default = os.path.join(path_git_assets, name_image_default)
     image_generated_content = None
     image_generated_bytes = None
 
@@ -31,6 +32,7 @@ class App(customtkinter.CTk):
     placeholder_message = "Enter your message"
     placeholder_prompt = "Enter the prompt, e.g. Pirate with Ben & Jerry's in style of flat art"
 
+    title_app = "OpenAI - Demo"
     tab_names = ["chat",
                  "logo",
                  "docs"]
@@ -42,7 +44,6 @@ class App(customtkinter.CTk):
     types_docs = ["private",
                   "unlisted",
                   "public"]
-    title_app = "OpenAI - Demo"
 
     size_image_original = (256, 256)
     size_image_logo = (25, 25)
@@ -62,7 +63,7 @@ class App(customtkinter.CTk):
         self.title(self.title_app)
         self.geometry(f"{self.size_window[0]}x{self.size_window[1]}")
         self.wm_iconbitmap()
-        icon_photo_path = self.image_default_path
+        icon_photo_path = self.path_image_default
         icon_photo = PhotoImage(file=icon_photo_path)
         self.iconphoto(False, icon_photo)
 
@@ -129,7 +130,7 @@ class App(customtkinter.CTk):
         self.entry_prompt = customtkinter.CTkEntry(self.frame_prompt, placeholder_text=self.placeholder_prompt, justify="center")
         self.entry_prompt.grid(row=0, column=0, sticky="nsew")
 
-        image = customtkinter.CTkImage(dark_image=Image.open(self.image_default_path),
+        image = customtkinter.CTkImage(dark_image=Image.open(self.path_image_default),
                                        size=self.size_image_original)
 
         self.label_image = customtkinter.CTkLabel(self.frame_image, image=image, text="", justify="center")
@@ -190,34 +191,34 @@ class App(customtkinter.CTk):
 
     def add_doc(self, doc={}):
         if doc:
-            image_to_open = os.path.join(self.path_app_docs, doc["logo"])
             hash = doc["hash"]
             name = doc["name"]
             type = doc["type"]
+            image_to_open = os.path.join(self.path_git_docs, doc["logo"])
         else:
+            hash = str(len(self.docs_data) + 1)
             name = self.input_dialog(text="Enter the name of the doc:",
                                      title="Name of Doc")
+            type = 0
             if not name:
                 return
-            # update json, and data
-            self.save_chat(name)
-            image_to_open = self.image_default_path
+            name_txt = f"{name}.txt"
+            name_png = f"{name}.png"
+            self.save_chat(name_txt)
             if self.image_generated_bytes:
-                self.save_image(name)
+                self.save_image(name_png)
                 image_to_open = self.image_generated_bytes
             else:
-                shutil.copyfile(self.image_default_path, os.path.join(self.path_app_docs, f"{name}.png"))
-            hash = str(len(self.docs_data) + 1)
-            type = 0
+                image_to_open = os.path.join(self.path_git_docs, name_png)
+                shutil.copyfile(self.path_image_default, image_to_open)
             data = {hash: {"state": 1,
                            "hash": hash,
                            "name": name,
-                           "chat": f"{name}.txt",
-                           "logo": f"{name}.png",
+                           "chat": name_txt,
+                           "logo": name_png,
                            "type": 1}}
             self.docs_data.update(data)
             self.update_docs()
-
             doc = data[hash]
         image_doc = customtkinter.CTkImage(dark_image=Image.open(image_to_open),
                                            size=self.size_image_logo)
@@ -236,7 +237,7 @@ class App(customtkinter.CTk):
         )
         self.widgets_docs[-1].append(hash)
         self.widgets_docs[0][n].grid(row=n, column=0, padx=(0, 0), pady=(self.pady_grid, 0), sticky="ew")
-        self.widgets_docs[0][n].bind("<Button-1>", lambda event, path_logo=os.path.join(self.path_app_docs, doc["logo"]), path_chat=os.path.join(self.path_app_docs, doc["chat"]), name=doc["name"]: self.open_doc(path_logo, path_chat, name))
+        self.widgets_docs[0][n].bind("<Button-1>", lambda event, name=doc["name"], path_chat=os.path.join(self.path_git_docs, doc["chat"]), path_logo=os.path.join(self.path_git_docs, doc["logo"]): self.open_doc(name, path_chat, path_logo))
         self.widgets_docs[1][n].grid(row=n, column=1, padx=(self.padx_grid, 0), pady=(self.pady_grid, 0), sticky="ew")
         self.widgets_docs[1][n].configure(state="normal")
         self.widgets_docs[1][n].delete(0, "end")
@@ -247,7 +248,6 @@ class App(customtkinter.CTk):
         self.widgets_docs[3][n].grid(row=n, column=3, padx=self.padx_grid, pady=(self.pady_grid, 0), sticky="ew")
 
     def delete_doc(self, n):
-        print(type(n), n)
         hash = self.widgets_docs[-1][n]
         self.docs_data[hash]["state"] = 0 
         self.update_docs()
@@ -266,13 +266,13 @@ class App(customtkinter.CTk):
         dialog = customtkinter.CTkInputDialog(text=text, title=title)
         return dialog.get_input()
 
-    def save_chat(self, name):
-        path_txt = os.path.join(self.path_app_docs, f"{name}.txt")
+    def save_chat(self, name_txt):
+        path_txt = os.path.join(self.path_git_docs, name_txt)
         with open(path_txt, 'w') as f:
             f.write(self.textbox.get(0.0, "end"))
 
-    def save_image(self, name):
-        path_png = os.path.join(self.path_app_docs, f"{name}.png")
+    def save_image(self, name_png):
+        path_png = os.path.join(self.path_git_docs, name_png)
         with open(path_png, "wb") as f:
             f.write(self.image_generated_content)
 
@@ -290,15 +290,10 @@ class App(customtkinter.CTk):
         self.docs_data[hash]["type"] = self.types_docs.index(type) 
         self.update_docs()
 
-    def open_doc(self, path_logo, path_chat, name):
-        image_open = Image.open(path_logo)
-        image = customtkinter.CTkImage(dark_image=image_open,
-                                       size=self.size_image_original)
-        with open(path_chat, "r") as f:
-            text = f.read()
-        AppOpenDoc(image=image,
-                   text=text,
-                   name=name)
+    def open_doc(self, name, path_chat, path_logo):
+        AppOpenDoc(name=name,
+                   path_chat=path_chat,
+                   path_logo=path_logo)
 
     def resize(self, event) -> None:
         if self.winfo_width() < self.size_window[0]:
