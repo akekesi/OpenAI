@@ -20,11 +20,11 @@ class AppOpenAI(customtkinter.CTk):
     name_docs = "00_docs.json"
     name_image_default = "image_default.png"
 
-    path_docs = os.path.join(path_git_docs, name_docs)
+    path_docs = os.path.join(os.path.dirname(__file__), path_git_docs, name_docs)
     with open(path_docs, 'r') as f:
         docs_data = json.load(f)
 
-    path_image_default = os.path.join(path_git_assets, name_image_default)
+    path_image_default = os.path.join(os.path.dirname(__file__), path_git_assets, name_image_default)
     image_generated_content = None
     image_generated_bytes = None
 
@@ -53,7 +53,7 @@ class AppOpenAI(customtkinter.CTk):
     pady_grid = 10
     padx_grid_scroll = 16
 
-    path_api_key = "api.key"    # api.key file, paste your api key there
+    path_api_key = os.path.join(os.path.dirname(__file__), "api.key")    # api.key file, paste your api key there
     with open(path_api_key, "r") as api_key_open:
         api_key = api_key_open.read()
 
@@ -196,7 +196,7 @@ class AppOpenAI(customtkinter.CTk):
             hash = doc["hash"]
             name = doc["name"]
             type = doc["type"]
-            image_to_open = os.path.join(self.path_git_docs, doc["logo"])
+            image_to_open = os.path.join(os.path.dirname(__file__), self.path_git_docs, doc["logo"])
         else:
             hash = str(len(self.docs_data) + 1)
             name = self.input_dialog(text="Enter the name of the doc:",
@@ -211,7 +211,7 @@ class AppOpenAI(customtkinter.CTk):
                 self.save_image(name_png)
                 image_to_open = self.image_generated_bytes
             else:
-                image_to_open = os.path.join(self.path_git_docs, name_png)
+                image_to_open = os.path.join(os.path.dirname(__file__), self.path_git_docs, name_png)
                 shutil.copyfile(self.path_image_default, image_to_open)
             data = {hash: {"state": 1,
                            "hash": hash,
@@ -239,7 +239,7 @@ class AppOpenAI(customtkinter.CTk):
         )
         self.widgets_docs[-1].append(hash)
         self.widgets_docs[0][n].grid(row=n, column=0, padx=(0, 0), pady=(self.pady_grid, 0), sticky="ew")
-        self.widgets_docs[0][n].bind("<Button-1>", lambda event, name=doc["name"], path_chat=os.path.join(self.path_git_docs, doc["chat"]), path_logo=os.path.join(self.path_git_docs, doc["logo"]): self.open_doc(name, path_chat, path_logo))
+        self.widgets_docs[0][n].bind("<Button-1>", lambda event, name=doc["name"], path_chat=os.path.join(os.path.dirname(__file__), self.path_git_docs, doc["chat"]), path_logo=os.path.join(os.path.dirname(__file__), self.path_git_docs, doc["logo"]): self.open_doc(name, path_chat, path_logo))
         self.widgets_docs[1][n].grid(row=n, column=1, padx=(self.padx_grid, 0), pady=(self.pady_grid, 0), sticky="ew")
         self.widgets_docs[1][n].configure(state="normal")
         self.widgets_docs[1][n].delete(0, "end")
@@ -269,12 +269,12 @@ class AppOpenAI(customtkinter.CTk):
         return dialog.get_input()
 
     def save_chat(self, name_txt):
-        path_txt = os.path.join(self.path_git_docs, name_txt)
+        path_txt = os.path.join(os.path.dirname(__file__), self.path_git_docs, name_txt)
         with open(path_txt, 'w') as f:
             f.write(self.textbox.get(0.0, "end"))
 
     def save_image(self, name_png):
-        path_png = os.path.join(self.path_git_docs, name_png)
+        path_png = os.path.join(os.path.dirname(__file__), self.path_git_docs, name_png)
         with open(path_png, "wb") as f:
             f.write(self.image_generated_content)
 

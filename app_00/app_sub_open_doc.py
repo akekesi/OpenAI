@@ -7,7 +7,7 @@ from PIL import Image
 class AppSubOpenDoc(customtkinter.CTkToplevel):
     path_git_assets = "assets"
     name_image_default = "image_default.png"
-    path_image_default = os.path.join(path_git_assets, name_image_default)
+    path_image_default = os.path.join(os.path.dirname(__file__), path_git_assets, name_image_default)
 
     title_prefix = "OpenAI"
     tab_names = ["logo",
