@@ -177,6 +177,7 @@ class AppOpenAI(customtkinter.CTk):
         self.textbox.insert("end", f"> {message}\n")
         self.entry_message.delete(0, "end")
         self.textbox.insert("end", f"> {answer}\n")
+        self.textbox.see("end")
 
     def generate_image(self):
         prompt = self.entry_prompt.get()
