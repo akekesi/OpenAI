@@ -37,7 +37,7 @@ if __name__ == "__main__":
 	# arguments for functions
 	path_git_docs = "docs"
 	name_docs = "00_docs.json"
-	path_docs = os.path.join(path_git_docs, name_docs)
+	path_docs = os.path.join(os.path.dirname(__file__), path_git_docs, name_docs)
 	with open(path_docs, 'r') as f:
 		docs_data = json.load(f)
 
