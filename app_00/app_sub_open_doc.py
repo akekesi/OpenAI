@@ -36,7 +36,7 @@ class AppSubOpenDoc(customtkinter.CTkToplevel):
         self.wm_iconbitmap()
         icon_photo_path = self.path_image_default
         icon_photo = PhotoImage(file=icon_photo_path)
-        self.after(300, lambda: self.iconphoto(False, icon_photo))
+        self.after(200, lambda: self.iconphoto(False, icon_photo))
 
         # tabview
         self.grid_columnconfigure(0, weight=1)

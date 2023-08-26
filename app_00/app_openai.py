@@ -7,8 +7,8 @@ import threading
 import customtkinter
 from tkinter import *
 from PIL import Image
-from app_sub_open_doc import AppSubOpenDoc
 from class_openai import ChatGPT, DALLE
+from app_sub_open_doc import AppSubOpenDoc
 
 
 class AppOpenAI(customtkinter.CTk):
@@ -34,6 +34,7 @@ class AppOpenAI(customtkinter.CTk):
     placeholder_prompt = "Enter the prompt, e.g. Pirate with Ben & Jerry's in style of flat art"
 
     title_app = "OpenAI - Demo"
+    role_suffix = "DO NOT REVEAL YOU ARE AN AI!"
     tab_names = ["chat",
                  "logo",
                  "docs"]
@@ -54,7 +55,7 @@ class AppOpenAI(customtkinter.CTk):
     pady_grid = 10
     padx_grid_scroll = 16
 
-    path_api_key = os.path.join(os.path.dirname(__file__), "api.key")    # api.key file, paste your api key there
+    path_api_key = os.path.join(os.path.dirname(__file__), "api.key") # <-- api.key file, paste your api key there
     with open(path_api_key, "r") as api_key_open:
         api_key = api_key_open.read()
 
@@ -164,8 +165,12 @@ class AppOpenAI(customtkinter.CTk):
         # resize
         self.bind("<Configure>", self.resize)
 
-        # click return
+        # clicks
         self.bind('<Return>', self.click_return)
+        self.bind('<Alt-Right>', self.click_arrow_right)
+        self.bind('<Alt-Left>', self.click_arrow_left)
+        self.bind("<Up>", self.click_up)
+        self.bind("<Down>", self.click_down)
 
         # load docs
         self.load_docs()
@@ -174,34 +179,36 @@ class AppOpenAI(customtkinter.CTk):
         message = self.entry_message.get()
         if not message:
             return
-        self.button_send_message.configure(text="...")
         self.button_send_message.configure(state="disabled")
+        if self.first_message:
+            role_entry = self.entry_role.get()
+            role = f"{role_entry} {self.role_suffix}"
+            self.textbox.configure(state="normal")
+            self.textbox.insert("end", f"Role: {role_entry}\n")
+            self.textbox.configure(state="disabled")
+            self.chat_gpt = ChatGPT(api_key=self.api_key, role=role)
+            self.first_message = False
+        self.textbox.configure(state="normal")
+        self.textbox.insert("end", f"> {message}\n")
+        self.textbox.insert("end", f"> ...\n")
+        self.textbox.see("end")
+        self.textbox.configure(state="disabled")
+        self.entry_message.delete(0, "end")
         thread = threading.Thread(target=self.send_message_sub, kwargs={"message": message})
         thread.start()
 
     def send_message_sub(self, message):
-        if self.first_message:
-            role = self.entry_role.get()
-            self.textbox.configure(state="normal")
-            self.textbox.insert("end", f"Role: {role}\n")
-            self.textbox.configure(state="disabled")
-            self.first_message = False
-            self.chat_gpt = ChatGPT(api_key=self.api_key, role=role)
         answer = self.chat_gpt.question(question=message)
-        self.textbox.see("end")
         self.textbox.configure(state="normal")
-        self.textbox.insert("end", f"> {message}\n")
-        self.entry_message.delete(0, "end")
-        self.textbox.insert("end", f"> {answer}\n")
+        self.textbox.delete("end-5c", "end")
+        self.textbox.insert("end", f"{answer}\n")
         self.textbox.configure(state="disabled")
         self.button_send_message.configure(state="normal")
-        self.button_send_message.configure(text="Send")
 
     def generate_image(self):
         prompt = self.entry_prompt.get()
         if not prompt:
             return
-        self.button_generate_image.configure(text="...")
         self.button_generate_image.configure(state="disabled")
         thread = threading.Thread(target=self.generate_image_sub, kwargs={"prompt": prompt})
         thread.start()
@@ -217,7 +224,6 @@ class AppOpenAI(customtkinter.CTk):
                                                  size=self.size_image_original)
         self.label_image.configure(image=image_generated)
         self.button_generate_image.configure(state="normal")
-        self.button_generate_image.configure(text="Generate")
 
     def add_doc(self, doc={}):
         if doc:
@@ -330,6 +336,28 @@ class AppOpenAI(customtkinter.CTk):
             self.send_message()
         if self.tabview.get() == self.tab_names[1]:
             self.generate_image()
+
+    def click_arrow_right(self, event):
+        tab_current = self.tabview.get()
+        index_currant = self.tab_names.index(tab_current)
+        index_next = min(len(self.tab_names) - 1, index_currant + 1)
+        tab_next = self.tab_names[index_next]
+        self.tabview.set(tab_next)
+
+    def click_arrow_left(self, event):
+        tab_current = self.tabview.get()
+        index_currant = self.tab_names.index(tab_current)
+        index_next = max(0, index_currant - 1)
+        tab_next = self.tab_names[index_next]
+        self.tabview.set(tab_next)
+
+    def click_up(self, event):
+        if self.tabview.get() == self.tab_names[0]:
+            self.textbox.yview_scroll(-1, "units")
+
+    def click_down(self, event):
+        if self.tabview.get() == self.tab_names[0]:
+            self.textbox.yview_scroll(1, "units")
 
     def resize(self, event) -> None:
         if self.winfo_width() < self.size_window[0]:
