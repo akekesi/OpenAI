@@ -84,8 +84,8 @@ if __name__ == "__main__":
     name = "bart_movie"
     name_txt = f"{name}.txt"
     name_png = f"{name}.png"
-    path_chat = os.path.join(path_git_docs, name_txt)
-    path_logo = os.path.join(path_git_docs, name_png)
+    path_chat = os.path.join(os.path.join(os.path.dirname(__file__), path_git_docs, name_txt))
+    path_logo = os.path.join(os.path.join(os.path.dirname(__file__), path_git_docs, name_png))
 
     # AppSubOpenDoc()
     customtkinter.set_appearance_mode("dark")

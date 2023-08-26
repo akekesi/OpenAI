@@ -3,6 +3,7 @@ import os
 import json
 import shutil
 import requests
+import threading
 import customtkinter
 from tkinter import *
 from PIL import Image
@@ -97,8 +98,8 @@ class AppOpenAI(customtkinter.CTk):
         self.entry_role = customtkinter.CTkEntry(self.frame_role, placeholder_text=self.placeholder_role, justify="center")
         self.entry_role.grid(row=0, column=0, sticky="nsew")
 
-        self.textbox = customtkinter.CTkTextbox(self.frame_text, activate_scrollbars=False)
-        self.textbox.grid(row=0, column=0, padx=(self.padx_grid_scroll, 0), sticky="nsew")
+        self.textbox = customtkinter.CTkTextbox(self.frame_text, activate_scrollbars=False, state="disabled")
+        self.textbox.grid(row=0, column=0, sticky="nsew")
 
         self.textbox_scrollbar = customtkinter.CTkScrollbar(self.frame_text, command=self.textbox.yview)
         self.textbox_scrollbar.grid(row=0, column=1, sticky="ns")
@@ -163,24 +164,49 @@ class AppOpenAI(customtkinter.CTk):
         # resize
         self.bind("<Configure>", self.resize)
 
+        # click return
+        self.bind('<Return>', self.click_return)
+
         # load docs
         self.load_docs()
 
     def send_message(self):
+        message = self.entry_message.get()
+        if not message:
+            return
+        self.button_send_message.configure(text="...")
+        self.button_send_message.configure(state="disabled")
+        thread = threading.Thread(target=self.send_message_sub, kwargs={"message": message})
+        thread.start()
+
+    def send_message_sub(self, message):
         if self.first_message:
             role = self.entry_role.get()
+            self.textbox.configure(state="normal")
             self.textbox.insert("end", f"Role: {role}\n")
+            self.textbox.configure(state="disabled")
             self.first_message = False
             self.chat_gpt = ChatGPT(api_key=self.api_key, role=role)
-        message = self.entry_message.get()
         answer = self.chat_gpt.question(question=message)
+        self.textbox.see("end")
+        self.textbox.configure(state="normal")
         self.textbox.insert("end", f"> {message}\n")
         self.entry_message.delete(0, "end")
         self.textbox.insert("end", f"> {answer}\n")
-        self.textbox.see("end")
+        self.textbox.configure(state="disabled")
+        self.button_send_message.configure(state="normal")
+        self.button_send_message.configure(text="Send")
 
     def generate_image(self):
         prompt = self.entry_prompt.get()
+        if not prompt:
+            return
+        self.button_generate_image.configure(text="...")
+        self.button_generate_image.configure(state="disabled")
+        thread = threading.Thread(target=self.generate_image_sub, kwargs={"prompt": prompt})
+        thread.start()
+
+    def generate_image_sub(self, prompt):
         dall_e = DALLE(api_key=self.api_key)
         url = dall_e.create(prompt=prompt,
                             n=1,
@@ -190,6 +216,8 @@ class AppOpenAI(customtkinter.CTk):
         image_generated = customtkinter.CTkImage(dark_image=Image.open(self.image_generated_bytes),
                                                  size=self.size_image_original)
         self.label_image.configure(image=image_generated)
+        self.button_generate_image.configure(state="normal")
+        self.button_generate_image.configure(text="Generate")
 
     def add_doc(self, doc={}):
         if doc:
@@ -296,6 +324,12 @@ class AppOpenAI(customtkinter.CTk):
         AppSubOpenDoc(name=name,
                    path_chat=path_chat,
                    path_logo=path_logo)
+
+    def click_return(self, event):
+        if self.tabview.get() == self.tab_names[0]:
+            self.send_message()
+        if self.tabview.get() == self.tab_names[1]:
+            self.generate_image()
 
     def resize(self, event) -> None:
         if self.winfo_width() < self.size_window[0]:
