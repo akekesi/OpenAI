@@ -1,7 +1,0 @@
-*__pycache__
-*.png
-*.txt
-*.json
-app_00/api.key
-
-!app_00/requirements.txt
