@@ -57,7 +57,7 @@ class AppOpenAI(customtkinter.CTk):
 
     with open(path_api_key, "r") as api_key_open:
         api_key = api_key_open.read()
-        
+
     def __init__(self):
         super().__init__()
 
@@ -234,8 +234,8 @@ class AppOpenAI(customtkinter.CTk):
         else:
             hash_ = str(len(self.doc_config))
             while True:
-                name_ = self.input_dialog(text="Enter the name of the doc:",
-                                          title="Name of Doc")
+                name_ = self.input_dialog(title="Name of Doc",
+                                          text="Enter the name of the doc:")
                 if not name_:
                     return
                 path_doc = os.path.join(self.path_doc, name_)
@@ -299,8 +299,8 @@ class AppOpenAI(customtkinter.CTk):
             self.doc_widgets[3][n] = ""
             self.doc_widgets[4][n] = "" 
 
-    def input_dialog(self, text, title):
-        dialog = customtkinter.CTkInputDialog(text=text, title=title)
+    def input_dialog(self, title, text):
+        dialog = customtkinter.CTkInputDialog(title=title, text=text)
         return dialog.get_input()
 
     def save_chat(self, name):
