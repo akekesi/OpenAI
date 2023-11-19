@@ -1,6 +1,10 @@
-# OpenAI
+# OpenAI - chat/logo/docs
+1. [Python](#python)
+1. [Executable](#executable)
+1. [TODO](#todo)
 
-1. Add your OpenAI API key to the `api.key` file.
+## Python
+1. Add your OpenAI API key to the `api.key` file
 
 2. Install Python Packages
     ```bash
@@ -15,3 +19,17 @@
     ```bash
     $ python3 src/app_openai_main.py
     ```
+
+## Executable
+1. Create executable
+    ```bash
+    $ . exe/create_exe.sh
+    ```
+    
+2. Add your OpenAI API key to the `exe/app_openai_main/api.key` file
+
+3. Execute `exe/app_openai_main/app_openai_main.exe`
+
+## TODO
+- check API key validity
+- create bin
