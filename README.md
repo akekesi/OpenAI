@@ -31,5 +31,6 @@
 3. Execute `exe/app_openai_main/app_openai_main.exe`
 
 ## TODO
+- add manual and examples (images/videos) to README.md
 - check API key validity
 - create bin
